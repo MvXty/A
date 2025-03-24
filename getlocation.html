@@ -37,7 +37,26 @@
     <p>位置情報の取得を許可してください。</p>
     <p id="location"></p>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <script>
+        // Firebaseの設定（以下を自分のFirebaseプロジェクトの設定に置き換える）
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebaseの初期化
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // ページ読み込み時に位置情報を取得
         window.onload = function() {
             if (navigator.geolocation) {
@@ -52,6 +71,18 @@
             var lon = position.coords.longitude;
             // 位置情報をページ内に表示
             document.getElementById("location").innerHTML = "緯度: " + lat + "<br>経度: " + lon + "<br><a href='https://www.latlong.net/c/?lat=" + lat + "&long=" + lon + "' target='_blank'>地図で確認する</a>";
+
+            // 位置情報をFirebaseに送信
+            const timestamp = new Date().toISOString();
+            database.ref('locations/' + timestamp).set({
+                latitude: lat,
+                longitude: lon,
+                timestamp: timestamp
+            }).then(() => {
+                console.log("位置情報が送信されました");
+            }).catch((error) => {
+                console.error("位置情報の送信に失敗しました: ", error);
+            });
         }
 
         function showError(error) {
