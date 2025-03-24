@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位置情報確認</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            color: #666;
+        }
+        #locations {
+            margin-top: 20px;
+            text-align: left;
+            display: inline-block;
+        }
+        .location-entry {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>取得した位置情報</h1>
+    <p>以下に取得した位置情報を表示します。</p>
+    <div id="locations"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebaseの設定（getlocation.htmlと同じ設定を使用）
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebaseの初期化
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 位置情報を取得して表示
+        const locationsRef = database.ref('locations');
+        locationsRef.on('value', (snapshot) => {
+            const locations = snapshot.val();
+            const locationsDiv = document.getElementById('locations');
+            locationsDiv.innerHTML = '';
+
+            if (locations) {
+                for (const key in locations) {
+                    const location = locations[key];
+                    const lat = location.latitude;
+                    const lon = location.longitude;
+                    const timestamp = location.timestamp;
+                    const mapUrl = `https://www.latlong.net/c/?lat=${lat}&long=${lon}`;
+
+                    const entry = document.createElement('div');
+                    entry.className = 'location-entry';
+                    entry.innerHTML = `
+                        <p>取得日時: ${timestamp}</p>
+                        <p>緯度: ${lat}</p>
+                        <p>経度: ${lon}</p>
+                        <p><a href="${mapUrl}" target="_blank">地図で確認する</a></p>
+                    `;
+                    locationsDiv.appendChild(entry);
+                }
+            } else {
+                locationsDiv.innerHTML = '位置情報がまだ取得されていません。';
+            }
+        });
+    </script>
+</body>
+</html>
