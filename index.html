@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>位置情報取得ツール</title>
+    <title>位置情報共有URL作成ツール</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,11 +18,6 @@
             font-size: 18px;
             color: #666;
         }
-        #location {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #007BFF;
-        }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -31,52 +26,37 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 10px;
         }
         button:hover {
             background-color: #0056b3;
         }
+        #shareUrl {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007BFF;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
-    <h1>位置情報を取得します</h1>
-    <p>以下のボタンをクリックして、位置情報の取得を許可してください。</p>
-    <button onclick="getLocation()">位置情報を取得</button>
-    <p id="location"></p>
+    <h1>位置情報共有URLを作成</h1>
+    <p>以下のボタンをクリックして、位置情報を取得するためのURLを作成してください。</p>
+    <button onclick="generateUrl()">URLを作成</button>
+    <p id="shareUrl"></p>
 
     <script>
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                document.getElementById("location").innerHTML = "お使いのブラウザはGeolocationをサポートしていません。";
-            }
-        }
+        function generateUrl() {
+            // 位置情報取得ページのURL（公開URL/getlocation.html）
+            const locationUrl = "https://mvxty.github.io/ShareLocation/getlocation.html";
+            document.getElementById("shareUrl").innerHTML = `作成したURL: <a href="${locationUrl}" target="_blank">${locationUrl}</a><br>このURLをコピーして相手に送ってください。`;
 
-        function showPosition(position) {
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
-            document.getElementById("location").innerHTML = "緯度: " + lat + "<br>経度: " + lon;
-
-            // latlong.netの地図ページにリダイレクト
-            var latlongUrl = "https://www.latlong.net/c/?lat=" + lat + "&long=" + lon;
-            window.location.href = latlongUrl;
-        }
-
-        function showError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    document.getElementById("location").innerHTML = "位置情報の取得が拒否されました。";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    document.getElementById("location").innerHTML = "位置情報が利用できません。";
-                    break;
-                case error.TIMEOUT:
-                    document.getElementById("location").innerHTML = "位置情報の取得がタイムアウトしました。";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    document.getElementById("location").innerHTML = "不明なエラーが発生しました。";
-                    break;
-            }
+            // クリップボードにコピーする機能
+            navigator.clipboard.writeText(locationUrl).then(() => {
+                alert("URLがクリップボードにコピーされました！");
+            }).catch(err => {
+                alert("URLのコピーに失敗しました。手動でコピーしてください。");
+            });
         }
     </script>
 </body>
